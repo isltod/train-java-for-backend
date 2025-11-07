@@ -1,5 +1,6 @@
 package kr.co.mystore.product.management.infrastructure;
 
+import kr.co.mystore.product.management.domain.EntityNotFountException;
 import kr.co.mystore.product.management.domain.Product;
 import org.springframework.stereotype.Repository;
 
@@ -26,7 +27,7 @@ public class ListProductRepository {
         return products.stream()
                 .filter(product -> product.sameId(id))
                 .findFirst()
-                .orElseThrow();
+                .orElseThrow(() -> new EntityNotFountException("Product를 찾지 못했습니다."));
     }
 
     public List<Product> findAll() {
