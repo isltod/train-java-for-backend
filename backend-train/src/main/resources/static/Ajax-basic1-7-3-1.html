@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AJAX 비동기 요청</title>
+</head>
+<body>
+    <script>
+<!--        페이지가 다 로딩된 후에, 새로고침되지 않고, AJAX 요청으로 '파라미터가 없는 GET 요청' 문자열을 받아온다... -->
+        function onReadyStateChange(event) {
+            if (ajaxRequest.readyState === XMLHttpRequest.DONE) {
+                if (ajaxRequest.status === 200) {
+                    console.log(ajaxRequest.responseText);
+                } else {
+                    console.log(ajaxRequest);
+                    console.log('request failed');
+                }
+            }
+        }
+
+        const ajaxRequest = new XMLHttpRequest();
+        ajaxRequest.onreadystatechange = onReadyStateChange;
+        ajaxRequest.open('GET', '/get-with-no-parameter');
+        ajaxRequest.send();
+    </script>
+</body>
+</html>

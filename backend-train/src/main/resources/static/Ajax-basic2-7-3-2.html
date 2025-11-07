@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AJAX 비동기 요청 북마크</title>
+</head>
+<body>
+    <form onsubmit="return addBookmarkRequest();">
+        <label>즐겨찾기 이름: </label><input type="text" name="name"><br>
+        <label>즐겨찾기 주소: </label><input type="text" name="url"><br>
+        <input type="submit"><br>
+    </form>
+    <button onclick="getBookmarksListRequest();">즐겨찾기 목록 가져오기</button>
+    <ol id="bookmark-list">
+<!--        여기 즐겨찾기 목록이 나온다..페이지 새로 고침 없이...-->
+    </ol>
+
+    <script>
+<!--        페이지가 다 로딩된 후에, 새로고침되지 않고, AJAX 요청으로 '파라미터가 없는 GET 요청' 문자열을 받아온다... -->
+
+        function addBookmarkRequest() {
+            const name = document.querySelector('input[name=name]').value;
+            const url = document.querySelector('input[name=url]').value;
+            const requestObject = {name: name, url: url};
+            const requestJson = JSON.stringify(requestObject);
+
+            function onReadyStateChange(event) {
+                const currentAjaxRequest = event.currentTarget;
+                if (currentAjaxRequest.readyState === XMLHttpRequest.DONE) {
+                    if (currentAjaxRequest.status === 200) {
+                        alert("즐겨찾기가 등록되었습니다.");
+                    } else {
+                        console.log(currentAjaxRequest);
+                        console.log('request failed');
+                    }
+                }
+            }
+            const ajaxRequest = new XMLHttpRequest();
+            ajaxRequest.onreadystatechange = onReadyStateChange;
+            ajaxRequest.open('POST', '/bookmark');
+            ajaxRequest.setRequestHeader('Content-Type', 'application/json');
+            ajaxRequest.send(requestJson);
+
+            return false;
+        }
+
+        function getBookmarksListRequest() {
+            function onReadyStateChange(event) {
+                const currentAjaxRequest = event.currentTarget;
+                if (currentAjaxRequest.readyState === XMLHttpRequest.DONE) {
+                    if (currentAjaxRequest.status === 200) {
+                        const bookmarkListDom = document.querySelector('#bookmark-list');
+                        bookmarkListDom.innerHTML = '';
+
+                        const bookmarks = JSON.parse(currentAjaxRequest.responseText);
+                        bookmarks.forEach(bookmark => {
+                            const liNode = document.createElement('li');
+                            const textNode = document.createTextNode(bookmark.name + ' - ' + bookmark.url);
+                            liNode.appendChild(textNode);
+                            bookmarkListDom.appendChild(liNode);
+                        });
+                    } else {
+                        console.log(currentAjaxRequest);
+                        console.log('request failed');
+                    }
+                }
+            }
+            const ajaxRequest = new XMLHttpRequest();
+            ajaxRequest.onreadystatechange = onReadyStateChange;
+            ajaxRequest.open('GET', '/bookmarks');
+            ajaxRequest.send();
+        }
+    </script>
+</body>
+</html>
