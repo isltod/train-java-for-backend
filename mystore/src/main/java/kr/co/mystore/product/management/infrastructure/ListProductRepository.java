@@ -22,4 +22,32 @@ public class ListProductRepository {
         return product;
     }
 
+    public Product findById(Long id) {
+        return products.stream()
+                .filter(product -> product.sameId(id))
+                .findFirst()
+                .orElseThrow();
+    }
+
+    public List<Product> findAll() {
+        return products;
+    }
+
+    public List<Product> findByNameContainig(String name) {
+        return products.stream()
+                .filter(product -> product.containsName(name))
+                .toList();
+    }
+
+    public Product update(Product product) {
+        Integer indexToModify = products.indexOf(product);
+        // List의 set 메서드가 그 인덱스 위치에 객체를 바꿔주는 모양...
+        products.set(indexToModify, product);
+        return product;
+    }
+
+    public void delete(Long id) {
+        Product product = this.findById(id);
+        products.remove(product);
+    }
 }
