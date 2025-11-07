@@ -7,6 +7,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class SimpleProductService {
 
@@ -34,5 +36,39 @@ public class SimpleProductService {
         ProductDto savedProductDto = modelMapper.map(savedProduct, ProductDto.class);
         // 4. 바꾼 DTO 객체를 돌려준다...
         return savedProductDto;
+    }
+
+    // 아무튼 여기가 ProductDto <-> Product 경계선인 모양인데...
+    public ProductDto findById(Long id) {
+        Product product = listProductRepository.findById(id);
+        ProductDto productDto = modelMapper.map(product, ProductDto.class);
+        return productDto;
+    }
+
+    public List<ProductDto> findAll() {
+        List<Product> products = listProductRepository.findAll();
+        List<ProductDto> productDtos = products.stream()
+                .map(product -> modelMapper.map(product, ProductDto.class))
+                .toList();
+        return productDtos;
+    }
+
+    public List<ProductDto> findByNameContaining(String name) {
+        List<Product> products = listProductRepository.findByNameContainig(name);
+        List<ProductDto> productDtos = products.stream()
+                .map(product -> modelMapper.map(product, ProductDto.class))
+                .toList();
+        return productDtos;
+    }
+
+    public ProductDto update(ProductDto productDto) {
+        Product product = modelMapper.map(productDto, Product.class);
+        Product updatedProduct = listProductRepository.update(product);
+        ProductDto updatedProductDto = modelMapper.map(updatedProduct, ProductDto.class);
+        return updatedProductDto;
+    }
+
+    public void delete(Long id) {
+        listProductRepository.delete(id);
     }
 }
