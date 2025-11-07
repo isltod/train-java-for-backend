@@ -1,5 +1,6 @@
 package kr.co.mystore.product.management.presentation;
 
+import jakarta.validation.Valid;
 import kr.co.mystore.product.management.application.SimpleProductService;
 import kr.co.mystore.product.management.domain.Product;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,8 @@ public class ProductController {
     }
 
     @RequestMapping(value = "/products", method = RequestMethod.POST)
-    public ProductDto createProduct(@RequestBody ProductDto productDto) {
-        // TODO: Product 만들고 리스트에 넣기
+    public ProductDto createProduct(@Valid @RequestBody ProductDto productDto) {
+        // 매개변수로 오니까 거기다 그냥 @Valid, Product는 매개변수로 오는게 아니니까 별도의 Validation 서비스?
         return simpleProductService.add(productDto);
     }
 
