@@ -1,10 +1,13 @@
 package kr.co.mystore.product.management;
 
-import org.modelmapper.ModelMapper;
-import org.modelmapper.config.Configuration;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
 
 @SpringBootApplication
 public class Application {
@@ -14,12 +17,12 @@ public class Application {
 	}
 
     @Bean
-    public ModelMapper modelMapper() {
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration()
-                .setFieldAccessLevel(Configuration.AccessLevel.PRIVATE)
-                .setFieldMatchingEnabled(true);
-        return modelMapper;
+    @Profile("prod")
+    public ApplicationRunner runner(DataSource dataSource) {
+        return args -> {
+            // 위에 args가 정확히 뭐지? 아무튼 여기서 정의되는 내용을 넘겨준다는 얘긴가?
+            Connection connection = dataSource.getConnection();
+        };
     }
 
 }
