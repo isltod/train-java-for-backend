@@ -1,9 +1,8 @@
 package kr.co.mystore.product.management.application;
 
 import kr.co.mystore.product.management.domain.Product;
-import kr.co.mystore.product.management.infrastructure.ListProductRepository;
+import kr.co.mystore.product.management.domain.ProductRepository;
 import kr.co.mystore.product.management.presentation.ProductDto;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,17 +11,14 @@ import java.util.List;
 @Service
 public class SimpleProductService {
 
-    // ListProductRepository가 제너릭이 아니라, 그 안에 products 필드가 제너릭이다..
-    private ListProductRepository listProductRepository;
-    private ModelMapper modelMapper;
+    private ProductRepository productRepository;
     private ValidationService validationService;
 
     @Autowired
     public SimpleProductService(
-            ListProductRepository listProductRepository, ModelMapper modelMapper, ValidationService validationService
+            ProductRepository productRepository, ValidationService validationService
     ) {
-        this.listProductRepository = listProductRepository;
-        this.modelMapper = modelMapper;
+        this.productRepository = productRepository;
         this.validationService = validationService;
     }
 
@@ -33,48 +29,48 @@ public class SimpleProductService {
          내부 제품 객체 필드가 외부에 어차피 나가는 거 아닌가?
          */
         // 1. 받은 DTO를 실제 내부 제품 객체로 바꾸고 유효성 검사(2번에서는 그냥 리스트에 넣을 뿐, 실제 대상은 여기서 만드니까...)
-        Product product = modelMapper.map(productDto, Product.class);
+        Product product = ProductDto.toEntity(productDto);
         // 여기는 매개변수로 오지 않고 결과로 나오니까 별도의 Validation 서비스, DTO는 매개변수로 오니까 거기다 그냥 @Valid?
         validationService.checkValid(product);
         // 2. 그걸 저장하고
-        Product savedProduct = listProductRepository.add(product);
+        Product savedProduct = productRepository.add(product);
         // 3. 돌려줄 객체는 다시 DTO로 바꿔서
-        ProductDto savedProductDto = modelMapper.map(savedProduct, ProductDto.class);
+        ProductDto savedProductDto = ProductDto.toDto(savedProduct);
         // 4. 바꾼 DTO 객체를 돌려준다...
         return savedProductDto;
     }
 
     // 아무튼 여기가 ProductDto <-> Product 경계선인 모양인데...
     public ProductDto findById(Long id) {
-        Product product = listProductRepository.findById(id);
-        ProductDto productDto = modelMapper.map(product, ProductDto.class);
+        Product product = productRepository.findById(id);
+        ProductDto productDto = ProductDto.toDto(product);
         return productDto;
     }
 
     public List<ProductDto> findAll() {
-        List<Product> products = listProductRepository.findAll();
+        List<Product> products = productRepository.findAll();
         List<ProductDto> productDtos = products.stream()
-                .map(product -> modelMapper.map(product, ProductDto.class))
+                .map(product -> ProductDto.toDto(product))
                 .toList();
         return productDtos;
     }
 
     public List<ProductDto> findByNameContaining(String name) {
-        List<Product> products = listProductRepository.findByNameContainig(name);
+        List<Product> products = productRepository.findByNameContainig(name);
         List<ProductDto> productDtos = products.stream()
-                .map(product -> modelMapper.map(product, ProductDto.class))
+                .map(product -> ProductDto.toDto(product))
                 .toList();
         return productDtos;
     }
 
     public ProductDto update(ProductDto productDto) {
-        Product product = modelMapper.map(productDto, Product.class);
-        Product updatedProduct = listProductRepository.update(product);
-        ProductDto updatedProductDto = modelMapper.map(updatedProduct, ProductDto.class);
+        Product product = ProductDto.toEntity(productDto);
+        Product updatedProduct = productRepository.update(product);
+        ProductDto updatedProductDto = ProductDto.toDto(updatedProduct);
         return updatedProductDto;
     }
 
     public void delete(Long id) {
-        listProductRepository.delete(id);
+        productRepository.delete(id);
     }
 }

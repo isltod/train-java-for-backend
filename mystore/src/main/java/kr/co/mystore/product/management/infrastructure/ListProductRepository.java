@@ -2,6 +2,8 @@ package kr.co.mystore.product.management.infrastructure;
 
 import kr.co.mystore.product.management.domain.EntityNotFountException;
 import kr.co.mystore.product.management.domain.Product;
+import kr.co.mystore.product.management.domain.ProductRepository;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -9,7 +11,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
-public class ListProductRepository {
+@Profile("test")
+public class ListProductRepository implements ProductRepository {
 
     // 둘 다 스레드 세이프한 클래들이라는 구만...
     private AtomicLong sequence = new AtomicLong(1L);
