@@ -10,6 +10,10 @@ public class ShortenUrlRequestDto {
     @URL(regexp = "^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$")
     private String originalUrl;
 
+    public ShortenUrlRequestDto(String originalUrl) {
+        this.originalUrl = originalUrl;
+    }
+
     public String getOriginalUrl() {
         return originalUrl;
     }
