@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>URL 단축 서비스</title>
+</head>
+
+<body>
+    <h1>URL 단축 서비스</h1>
+    <div>
+        <form onsubmit="return makeShortenUrl();">
+            <input type="url" id="originalUrl" placeholder="단축할 URL을 입력하세요" size="50" required autofocus>
+            <input type="submit" value="URL 생성">
+        </form>
+        단축된 URL: <span id="generatedUrl"></span>
+    </div>
+    <br>
+    <hr><br>
+    <h2>단축 URL 정보조회</h2>
+    <form onsubmit="return getShortenUrlInformation();">
+        <input type="url" id="shortenUrl" placeholder="정보를 조회할 단축 URL을 입력하세요." size="50" required>
+        <input type="submit" value="단축 URL 정보 조회">
+    </form>
+    단축 URL 정보: <span id="shortenUrlInformation"></span>
+    <script>
+        function makeShortenUrl() {
+            const originalUrl = document.querySelector("#originalUrl")
+            const requestObject = { originalUrl: originalUrl };
+            const requestJson = JSON.stringify(requestObject);
+
+            function onReadyStateChange(event) {
+                if (ajaxRequest.readyState === XMLHttpRequest.DONE) {
+                    if (ajaxRequest.status === 200) {
+                        const shortenUrl = JSON.parse(ajaxRequest.responseText);
+                        const fullShortenUrl = window.location.protocol + "//" + window.location.host + "/" + shortenUrl.shortenUrlKey;
+                        const generatedUrl = document.querySelector("#generatedUrl");
+                        generatedUrl.innerHTML = fullShortenUrl;
+                    } else {
+                        console.error("요청 실패")
+                    }
+                }
+            }
+
+            const ajaxRequest = new XMLHttpRequest();
+            ajaxRequest.onreadystatechange = onReadyStateChange;
+            ajaxRequest.open("POST", "/shorten-url");
+            ajaxRequest.setRequestHeader("Content-Type", "application/json");
+            ajaxRequest.send(requestJson);
+
+            return false;
+        }
+
+        function getShortenUrlInformation() {
+            const shortenUrl = document.querySelector("#shortenUrl")
+            const shortenUrlKey = shortenUrl.split("/")[3];
+
+            function onReadyStateChange(event) {
+                if (ajaxRequest.readyState === XMLHttpRequest.DONE) {
+                    if (ajaxRequest.status === 200) {
+                        const shortenUrlInfo = JSON.parse(ajaxRequest.responseText);
+                        const shortenUrlInformation = document.querySelector("#shortenUrlInformation");
+                        shortenUrlInformation.innerHTML = shortenUrlInfo;
+                    } else {
+                        console.error("요청 실패")
+                    }
+                }
+            }
+
+            const ajaxRequest = new XMLHttpRequest();
+            ajaxRequest.onreadystatechange = onReadyStateChange;
+            ajaxRequest.open("GET", "/shorten-url/" + shortenUrlKey);
+            ajaxRequest.send();
+
+            return false;
+        }
+    </script>
+</body>
+
+</html>
